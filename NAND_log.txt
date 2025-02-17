@@ -1,0 +1,6 @@
+2025-02-11 16:20:56 - InputA: 0, InputB: 0, Output: 1
+2025-02-11 16:21:25 - InputA: 0, InputB: 0, Output: 1
+2025-02-11 16:26:59 - InputA: 0, InputB: 0, Output: 1
+2025-02-11 16:27:36 - InputA: 0, InputB: 0, Output: 1
+2025-02-11 16:27:36 - InputA: 0, InputB: 0, Output: 1
+2025-02-11 17:01:47 - InputA: 0, InputB: 0, Output: 1

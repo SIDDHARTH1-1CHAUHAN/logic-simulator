@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic_Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <img src="placeholder_logo/Logic_Simulator.png" alt="Logic_Simulator Logo" class="logo">
+            <h2>Experiments</h2>
+            <ul id="experimentList">
+                <li onclick="selectExperiment('AND')">AND Gate</li>
+                <li onclick="selectExperiment('OR')">OR Gate</li>
+                <li onclick="selectExperiment('XOR')">XOR Gate</li>
+                <li onclick="selectExperiment('NAND')">NAND Gate</li>
+                <li onclick="selectExperiment('NOR')">NOR Gate</li>
+                <li onclick="selectExperiment('XNOR')">XNOR Gate</li>
+            </ul>
+            <button onclick="toggleTheme()">Toggle Dark/Light Mode</button>
+            <button onclick="saveCircuit()">Save Circuit</button>
+            <button onclick="loadCircuit()">Load Circuit</button>
+        </aside>
+
+        <!-- Experiment Guide -->
+        <aside class="guide-panel">
+            <h2>Experiment Guide</h2>
+            <p id="guideContent">Select a logic gate to begin the experiment.</p>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="simulation-area">
+            <h1 id="experimentTitle">Logic Simulator</h1>
+            <div class="circuit-panel">
+                <div class="inputs">
+                    <button onclick="toggleInput(0)">A1: <span id="inputA1">0</span></button>
+                    <button onclick="toggleInput(1)">B1: <span id="inputB1">0</span></button>
+                </div>
+
+                <svg class="wires">
+                    <line id="wireA1" class="wire" x1="50" y1="50" x2="150" y2="50"></line>
+                    <line id="wireB1" class="wire" x1="50" y1="80" x2="150" y2="80"></line>
+                    <line id="wireY1" class="wire" x1="250" y1="65" x2="350" y2="65"></line>
+                </svg>
+
+                <img id="icImage" class="ic-image" src="ics/7408.png" alt="IC Chip">
+                <img id="gateImage" class="gate-image" src="gates/AND.png" alt="Logic Gate">
+                
+                <div class="outputs">
+                    <div class="led" id="outputLED1">0</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const socket = new WebSocket("ws://127.0.0.1:8000/ws");
+        let inputA1 = 0, inputB1 = 0;
+        let theme = "dark";
+
+        const icMapping = {
+            "AND": "7408.png",
+            "OR": "7432.png",
+            "XOR": "7486.png",
+            "NAND": "7400.png",
+            "NOR": "7402.png",
+            "XNOR": "4077.png"
+        };
+
+        function selectExperiment(gate) {
+            document.getElementById("experimentTitle").innerText = `${gate} Gate Simulation`;
+            document.getElementById("icImage").src = `ics/${icMapping[gate]}`;
+            document.getElementById("gateImage").src = `gates/${gate}.png`;
+            document.getElementById("guideContent").innerText = `${gate} Gate: Logical operation explained.`;
+            sendInput();
+        }
+
+        function toggleInput(input) {
+            if (input === 0) {
+                inputA1 = inputA1 === 0 ? 1 : 0;
+                document.getElementById("inputA1").innerText = inputA1;
+            } else {
+                inputB1 = inputB1 === 0 ? 1 : 0;
+                document.getElementById("inputB1").innerText = inputB1;
+            }
+            sendInput();
+        }
+
+        function sendInput() {
+            let selectedGate = document.getElementById("experimentTitle").innerText.split(" ")[0];
+            let output = inputA1 && inputB1;
+            document.getElementById("outputLED1").innerText = output;
+            document.getElementById("outputLED1").classList.toggle("active", output === 1);
+            document.getElementById("wireA1").style.stroke = inputA1 === 1 ? "yellow" : "gray";
+            document.getElementById("wireB1").style.stroke = inputB1 === 1 ? "yellow" : "gray";
+            document.getElementById("wireY1").style.stroke = output === 1 ? "cyan" : "gray";
+            let inputData = JSON.stringify({ gate: selectedGate, inputA: inputA1, inputB: inputB1 });
+            socket.send(inputData);
+        }
+
+        function toggleTheme() {
+            theme = theme === "dark" ? "light" : "dark";
+            document.body.classList.toggle("light-mode");
+        }
+    </script>
+</body>
+</html>
